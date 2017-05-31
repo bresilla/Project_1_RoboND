@@ -15,8 +15,20 @@ You're reading it!
 ## 2. Notebook Analysis
 Due to the fact that in the early stages i had problems with Jupyter Notebooks, could not import `moviepy` (and still have), i decided to work in PyCharm and then in the end, copied everything and put in Notebook again!
 
-<br/ >
-So, not to repeat myself from what i said in Notebook, i will explain
+So, not to repeat myself from what i said in Notebook, i will explain here how i did color thresholding.
+
+Firstly i used the method that we created in the begining of class:
+```python
+def color_terrain(img):
+    color_select = np.zeros_like(img[:,:,0])
+    above_thresh = (img[:,:,0] > 160) \
+                & (img[:,:,1] > 160) \
+                & (img[:,:,2] > 160)
+    color_select[above_thresh] = 1
+    return color_select
+```
+
+This gave me a map with navigable pixels
 
 ![alt text][image1]
 
@@ -65,4 +77,8 @@ Here I'll talk about the approach I took, what techniques I used, what worked an
 ![alt text][image3]
 
 
+s]
+
+
+s
 s
