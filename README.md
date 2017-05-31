@@ -3,7 +3,7 @@
 
 ---
 
-[image1]: ./misc/rover_image.jpg
+[image1]: ./output/cordinate_transformation.png
 ## [Rubric Points](https://review.udacity.com/#!/rubrics/916/view)
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
@@ -38,6 +38,18 @@ def color_terrain(img):
     color_select[above_thresh] = 1
     return color_select
 ```
+And lastly, but very importantly, detecting rocks.
+Well, this was abt more trickier, as i had to manipulate with upper and lower boundaries, i went using openCV, and we already used it for some image warping (so no need for extra-import). I did masking based on threshold placed below (based on HSV, as the image is converted to HSV).
+```python
+def color_rocks(img):
+    lower_thresh = np.array([20, 100, 100])
+    upper_thresh = np.array([25, 255, 255])
+    color_select = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_RGB2HSV, 3), lower_thresh, upper_thresh)
+    return color_select
+```
+
+At te end i 
+![alt text][image1]
 
 
 #### Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
