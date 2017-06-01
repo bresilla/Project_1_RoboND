@@ -53,8 +53,12 @@ After mapping the terrain, warping and matrix transformation and rotation, i got
 
 ![alt text][image1]
 
-
 From here i used the Databucket class pandas dataframe to go through all pictures that i recorded during first run.
+*The video of output is in `./output` folder*
+
+### Populating process_image() function in the notebook was straight forward, all the methods were already touched during the classa and in notebook!
+### But each steap was as follows:
+
 1. Based on pixels of grid picture that was given, we marked the exact pixels for source and destination
 2. I used openCV warp function to make an image from camera-point-of-view to bird-eye-point-of-veie
 3. Color thresholding of terrain, obsicles and rocks
@@ -64,7 +68,7 @@ From here i used the Databucket class pandas dataframe to go through all picture
 
 
 #### Populate the `process_image()` function 
-Populating process_image() function in the notebook was straight forward, all the methods were already touched during the class
+
 
 ## 3. Autonomous Navigation and Mapping
 
