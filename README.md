@@ -98,6 +98,200 @@ From here i used the Databucket() class, to make pandas dataframe and go through
 
 #### 1. Fill in the `perception_step()` and `decision_step()`  functions in the autonomous mapping scripts.
 
+Here gos the most important part of the project!
+
+#### `perception_step()`
+
+I immediately started populating the perception_step() with the calls for the methods that we made during the class.
+
+Firstly i  created some variables.
+
+```python
+cam_offset = 6 #rover camera offset caibration parameter
+dst_size = 5
+world_scale = 30
+world_size = Rover.worldmap.shape[0]
+```
+
+Then based on the grid image, we (during the class) marked the points where are the four corners for 1 square meter from the source picture, and what will be the destination of those four points after warping and looking from different perspective.
+
+```python
+source = np.float32([[14, 140], [301 ,140],[200, 96], [118, 96]])
+destination = np.float32([[Rover.img.shape[1]/2 - dst_size, Rover.img.shape[0] - bottom_offset],
+                      [Rover.img.shape[1]/2 + dst_size, Rover.img.shape[0] - bottom_offset],
+                      [Rover.img.shape[1]/2 + dst_size, Rover.img.shape[0] - 2*dst_size - bottom_offset],
+                      [Rover.img.shape[1]/2 - dst_size, Rover.img.shape[0] - 2*dst_size - bottom_offset],
+                      ])
+```
+Then warping the image. This uses a function from `openCV` to warp and transform the image. From openCV documentation:
+
+ *For perspective transformation, you need a 3x3 transformation matrix. Straight lines will remain straight even after the transformation. To  find this transformation matrix, you need 4 points on the input image  and corresponding points on the output image. Among these 4 points, 3 of  them should not be collinear. Then transformation matrix can be found by the function **cv2.getPerspectiveTransform**. Then apply **cv2.warpPerspective** with this 3x3 transformation matrix.*
+
+```python
+warped = perspect_transform(Rover.img, source, destination)
+```
+
+ Then we identify terrain, rocks and obstacles as described above, and here we just call those functions:
+
+```python
+terrain_select = color_terrain(warped)
+obstcls_select = color_obstcls(warped)
+rocks_select = color_rocks(warped)
+```
+
+After successful identification and thresholding, we use `Rover.vision_image` to draw those elements in the map for the simulator: (it was challenging, as the map would not show the images unless multiplying at the end with 255 <- i guess the color channel and depth) (thanks to @tiedyedguy for helping me out)
+
+```python
+Rover.vision_image[:, :, 2] = terrain_select * 255
+Rover.vision_image[:, :, 0] = obstcls_select * 255
+Rover.vision_image[:, :, 1] = rocks_select * 255
+```
+
+After that, was mapping the view to real world view:
+
+```python
+terrain_xpix, terrain_ypix = rover_coords(terrain_select)
+obstcls_xpix, oobstcls_ypix = rover_coords(obstcls_select)
+rocks_xpix, rocks_ypix = rover_coords(rocks_select)
+
+pos = Rover.pos
+yaw = Rover.yaw
+terrain_x_world, terrain_y_world = pix_to_world(terrain_xpix, terrain_ypix, pos[0], pos[1], yaw, world_size, world_scale)
+obstcls_x_world, obstcls_y_world = pix_to_world(obstcls_xpix, oobstcls_ypix, pos[0], pos[1], yaw, world_size, world_scale)
+rocks_x_world, rocks_y_world = pix_to_world(rocks_xpix, rocks_ypix, pos[0], pos[1], yaw, world_size, world_scale)
+```
+
+Here, with the help of @kava i made a conditional step to improve the fidelity, and not letting the pitch or roll have high values as they would highly impact the fidelity.
+
+```python
+if Rover.roll < 2.0 or Rover.roll > 358:
+    if Rover.pitch < 2.0 or Rover.pitch > 358:
+        Rover.worldmap[obstcls_y_world, obstcls_x_world, 0] += 255
+        Rover.worldmap[rocks_y_world, rocks_x_world , 1] += 255
+        Rover.worldmap[terrain_y_world, terrain_x_world, 2] += 255
+```
+
+Lastly, getting the angle and pixels position so the rover knows where is the navigable terrain, and calculating mean angle for steering. In addition to terrain, there is also rocks (and less important obstacles).
+
+Then everything is assign to Rover calss and returned the Rover.
+
+```python
+terrain_dist, terrain_angles = to_polar_coords(terrain_xpix, terrain_ypix)
+rock_dist, rock_angles = to_polar_coords(rocks_xpix, rocks_ypix)
+obstcls_dist, obstcls_angles = to_polar_coords(obstcls_xpix, oobstcls_ypix)
+
+Rover.nav_dists, Rover.nav_angles = terrain_dist, terrain_angles
+Rover.rocks_dists, Rover.rocks_angles = rock_dist, rock_angles
+Rover.obstcls_dists, Rover.obstcls_angles = obstcls_dist, obstcls_angles
+```
+
+#### `class RoverState():`
+
+I added few lines of code in `drive_rover.py` to accommodate those, as those are very important in steering the rover in the direction of the rock, when rover sees it based on color_threshold of it:
+
+```python
+        self.rocks_dists = None
+        self.rocks_angles = None
+        self.obstcls_dists = None
+        self.obstcls_angles = None
+```
+
+#### `decision_step()`
+
+Here is the basic logic served to us:
+
+```python
+    # Check if we have vision data to make decisions with
+    if Rover.nav_angles is not None:
+        # Check for Rover.mode status
+        if Rover.mode == 'forward': 
+            # Check the extent of navigable terrain
+            if len(Rover.nav_angles) >= Rover.stop_forward:  
+                # If mode is forward, navigable terrain looks good 
+                # and velocity is below max, then throttle 
+                if Rover.vel < Rover.max_vel:
+                    # Set throttle value to throttle setting
+                    Rover.throttle = Rover.throttle_set
+                else: # Else coast
+                    Rover.throttle = 0
+                Rover.brake = 0
+                # Set steering to average angle clipped to the range +/- 15
+                Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
+            # If there's a lack of navigable terrain pixels then go to 'stop' mode
+            elif len(Rover.nav_angles) < Rover.stop_forward:
+                    # Set mode to "stop" and hit the brakes!
+                    Rover.throttle = 0
+                    # Set brake to stored brake value
+                    Rover.brake = Rover.brake_set
+                    Rover.steer = 0
+                    Rover.mode = 'stop'
+
+        # If we're already in "stop" mode then make different decisions
+        elif Rover.mode == 'stop':
+            # If we're in stop mode but still moving keep braking
+            if Rover.vel > 0.2:
+                Rover.throttle = 0
+                Rover.brake = Rover.brake_set
+                Rover.steer = 0
+            # If we're not moving (vel < 0.2) then do something else
+            elif Rover.vel <= 0.2:
+                # Now we're stopped and we have vision data to see if there's a path forward
+                if len(Rover.nav_angles) < Rover.go_forward:
+                    Rover.throttle = 0
+                    # Release the brake to allow turning
+                    Rover.brake = 0
+                    # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
+                    Rover.steer = -15 # Could be more clever here about which way to turn
+                # If we're stopped but see sufficient navigable terrain in front then go!
+                if len(Rover.nav_angles) >= Rover.go_forward *2:
+                    # Set throttle back to stored value
+                    Rover.throttle = Rover.throttle_set
+                    # Release the brake
+                    Rover.brake = 0
+                    # Set steer to mean angle
+                    Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
+                    Rover.mode = 'forward'
+
+    # Just to make the rover do something
+    # even if no modifications have been made to the code
+    else:
+        Rover.throttle = Rover.throttle_set
+        Rover.steer = 0
+        Rover.brake = 0
+    # If in a state where want to pickup a rock send pickup command
+    if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
+        Rover.send_pickup = True
+```
+
+ And, actually for basic navigation it works just fine. Without modification, the rover goes through the map, follows the most navigable terrain, sometime spins a lot, but it works.
+
+My first added code in this logic was two lines, that simply stop the rover near the sample, as sometime it goes through  it and since there is velocity, it does not stop. 
+
+```python
+    if Rover.near_sample:
+        Rover.brake = Rover.brake_set
+```
+
+Is simple, hitting the breaks when near sample, and when near sample, it automatically picks up the sample:
+
+```python
+    if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
+        Rover.send_pickup = True
+```
+
+Then the next chunk of code was added to follow the rock when it sees it:
+
+```python
+    if Rover.rocks_angles is not None and len(Rover.rocks_angles) > 0:
+        Rover.steer = np.clip(np.mean(Rover.rocks_angles * 180/np.pi), -15, 15)
+        if not Rover.near_sample:
+            if Rover.vel < 1:
+                Rover.brake = 0
+                Rover.throttle = 0.1
+        else:
+            Rover.throttle = 0
+            Rover.brake = Rover.brake_set
+```
 
 
 
