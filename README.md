@@ -48,12 +48,23 @@ def color_rocks(img):
     return color_select
 ```
 
-At te end i 
+After mapping the terrain, warping and matrix transformation and rotation, i got this:
+
+
 ![alt text][image1]
 
 
-#### Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
-And another! 
+From here i used the Databucket class pandas dataframe to go through all pictures that i recorded during first run.
+1. Based on pixels of grid picture that was given, we marked the exact pixels for source and destination
+2. I used openCV warp function to make an image from camera-point-of-view to bird-eye-point-of-veie
+3. Color thresholding of terrain, obsicles and rocks
+4. Mapping to real world cordinates
+5. Then finding the angle where most of navigable terrain was (so we steer that way) and the distance
+6. Ploting the results
+
+
+#### Populate the `process_image()` function 
+Populating process_image() function in the notebook was straight forward, all the methods were already touched during the class
 
 ## 3. Autonomous Navigation and Mapping
 
