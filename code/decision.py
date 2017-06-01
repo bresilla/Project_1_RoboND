@@ -8,6 +8,7 @@ def decision_step(Rover):
     # Implement conditionals to decide what to do given perception data
     # Here you're all set up with some basic functionality but you'll need to
     # improve on this decision tree to do a good job of navigating autonomously!
+
     # Are there rocks:
     if Rover.rocks_angles is not None and len(Rover.rocks_angles) > 0:
         Rover.steer = np.clip(np.mean(Rover.rocks_angles * 180/np.pi), -15, 15)
@@ -18,6 +19,7 @@ def decision_step(Rover):
         else:
             Rover.throttle = 0
             Rover.brake = Rover.brake_set
+
     # Check if we have vision data to make decisions with
     if Rover.nav_angles is not None:
         # Check for Rover.mode status

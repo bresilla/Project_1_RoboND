@@ -45,13 +45,27 @@ def color_rocks(img):
     return color_select
 ```
 
+Later on, during the process i changed the color_rocks() from using OpenCV to again using NumPy:
+
+```python
+def color_rocks(img):
+    color_select = np.zeros_like(img[:, :, 0])
+    thresh = (img[:, :, 0] > 100) & (img[:, :, 0] < 255) \
+             & (img[:, :, 1] > 100) & (img[:, :, 1] < 255) \
+             & (img[:, :, 2] > 0) & (img[:, :, 2] < 75)
+    color_select[thresh] = 1
+    return color_select
+```
+
+This seemed to be working better in the decision step to get the angle and pixel size so that the rover can move better!
+
 After mapping the terrain, warping and matrix transformation and rotation, i got this:
 
 
 ![alt text][image1]
 
-From here i used the Databucket class pandas dataframe to go through all pictures that i recorded during first run.
-*The video of output is in `./output` folder*
+From here i used the Databucket() class, to make pandas dataframe and go through all pictures that i recorded during first run.
+**The video of output is in `./output` folder**
 
 ### Populating process_image() function in the notebook was straight forward, all the methods were already touched during the class and in notebook!
 
@@ -62,9 +76,11 @@ From here i used the Databucket class pandas dataframe to go through all picture
 1. Based on pixels of grid picture that was given, we marked the exact pixels for source and destination
 2. I used openCV warp function to make an image from camera-point-of-view to bird-eye-point-of-veie
 3. Color thresholding of terrain, obsicles and rocks
-4. Mapping to real world cordinates
-5. Then finding the angle where most of navigable terrain was (so we steer that way) and the distance
-6. Ploting the results
+4. Mapping to real world coordinates
+5. **Then finding the angle where most of navigable terrain was (so we steer that way) and the distance**
+6. Plotting the results in the window
+
+
 
 
 ## 3. Autonomous Navigation and Mapping
@@ -75,9 +91,4 @@ From here i used the Databucket class pandas dataframe to go through all picture
 
 
 #### 2. Launching in autonomous mode your rover can navigate and map autonomously.  Explain your results and how you might improve them in your writeup.  
-
-
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.tor with different choices of resolution and graphics quality may produce different results, particularly on different machines!  Make a note of your simulator settings (resolution and graphics quality set on launch) and frames per second (FPS output to terminal by `drive_rover.py`) in your writeup when you submit the project so your reviewer can reproduce your results.**
-
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
 

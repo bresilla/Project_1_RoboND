@@ -35,7 +35,7 @@ def color_rocks(img):
     color_select = np.zeros_like(img[:, :, 0])
     thresh = (img[:, :, 0] > 100) & (img[:, :, 0] < 255) \
              & (img[:, :, 1] > 100) & (img[:, :, 1] < 255) \
-             & (img[:, :, 2] > 20) & (img[:, :, 2] < 30)
+             & (img[:, :, 2] > 0) & (img[:, :, 2] < 75)
     color_select[thresh] = 1
     return color_select
 # </editor-fold>
