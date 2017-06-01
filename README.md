@@ -4,7 +4,8 @@
 
 ---
 
-## 1. Provide a Writeup  
+[image1]: ./output/cordinate_transformation.png
+## 1. A Writeup
 
 This is a writeup or a procedure on how i tackled some of the problems during the first project in Udacity's Robotics Nanodegree. 
 
