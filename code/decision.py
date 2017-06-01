@@ -15,10 +15,6 @@ def decision_step(Rover):
             if Rover.vel < Rover.max_vel/2:
                 Rover.brake = 0
                 Rover.throttle = 0.1
-            else:
-                Rover.throttle = 0
-                Rover.brake = 1
-        # Stop when close to a rock.
         else:
             Rover.throttle = 0
             Rover.brake = Rover.brake_set
