@@ -74,10 +74,21 @@ From here i used the Databucket() class, to make pandas dataframe and go through
 #### But each step was as follows:
 
 1. Based on pixels of grid picture that was given, we marked the exact pixels for source and destination
+
 2. I used openCV warp function to make an image from camera-point-of-view to bird-eye-point-of-veie
+
 3. Color thresholding of terrain, obsicles and rocks
+
 4. Mapping to real world coordinates
+
 5. **Then finding the angle where most of navigable terrain was (so we steer that way) and the distance**
+
+   ```python
+   xpix, ypix = rover_coords(threshed)
+   dist, angles = to_polar_coords(xpix, ypix)
+   mean_dir = np.mean(angles)
+   ```
+
 6. Plotting the results in the window
 
 
