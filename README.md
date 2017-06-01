@@ -4,14 +4,9 @@
 
 ---
 
-[image1]: ./output/cordinate_transformation.png
-## [Rubric Points](https://review.udacity.com/#!/rubrics/916/view)
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
-
----
 ## 1. Provide a Writeup  
 
-You're reading it!
+This is a writeup or a procedure on how i tackled some of the problems during the first project in Udacity's Robotics Nanodegree. 
 
 ## 2. Notebook Analysis
 Due to the fact that in the early stages i had problems with Jupyter Notebooks, could not import `moviepy` (and still have), i decided to work in PyCharm and then in the end, copied everything and put in Notebook again!
