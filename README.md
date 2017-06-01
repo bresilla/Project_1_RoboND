@@ -161,7 +161,7 @@ obstcls_x_world, obstcls_y_world = pix_to_world(obstcls_xpix, oobstcls_ypix, pos
 rocks_x_world, rocks_y_world = pix_to_world(rocks_xpix, rocks_ypix, pos[0], pos[1], yaw, world_size, world_scale)
 ```
 
-Here, with the help of @kava i made a conditional step to improve the fidelity, and not letting the pitch or roll have high values as they would highly impact the fidelity.
+Here, thanks to the hint of @shreeyak i made a conditional step to improve the fidelity, and not letting the pitch or roll have high values as they would highly impact the fidelity.
 
 ```python
 if Rover.roll < 2.0 or Rover.roll > 358:
@@ -297,3 +297,16 @@ Then the next chunk of code was added to follow the rock when it sees it:
 
 #### 2. Launching in autonomous mode your rover can navigate and map autonomously.  Explain your results and how you might improve them in your writeup.  
 
+So, launching in autonomous mode, it actually works pretty well. it navigates the terrain with quiet high fidelity! It still spins sometime and is not able to avoid small obstacles.
+
+How i can improve that:
+
+Firstly, i think that when thresholding and then creating the navigable terrain, i can restrict the distance of this terrain, so i don't consider terrain further away than 2 or three meters from robot, and in this was i can make a mean angle that is more robust on just those near pixels.
+
+Secondly, decision step. There are many many ways that this changes the behaviour of the robot. Adding a time function, as when it spins for more than `x` amount of time/frames then, change the angle. Then when stuck for too much time, got to stop more and spin in the other side, and so on...
+
+I think the decision step is very entertaining, as it makes use of logic and taking actions based on the input you get. 
+
+
+
+## So, this mark the end of my project! I was soo blown away that in just week one we covered all those basics concept. And to think of, its a lot, but was so attractive (sorry for lack of my english vocabulary), so i could not even go and do something else. Cant wait for next project!
