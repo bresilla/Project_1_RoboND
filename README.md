@@ -309,4 +309,4 @@ I think the decision step is very entertaining, as it makes use of logic and tak
 
 
 
-## So, this mark the end of my project! I was soo blown away that in just week one we covered all those basics concept. And to think of, its a lot, but was so attractive (sorry for lack of my english vocabulary), so i could not even go and do something else. Cant wait for next project!
+## So, this mark the end of my project! I was soo blown away that just in one week we covered all those concepts. And to think of it, its a lot, but was so attractive (sorry for lack of my English vocabulary), so i could not even go and do something else. Cant wait for next project!
